@@ -1,0 +1,5 @@
+[urls]
+hm = http://www2.hm.com/en_gb/customer-service/sizeguide/men.html
+theiconic = https://www.theiconic.com.au/index/sizeguidemain/#men-content
+asos = http://www.asos.com/Women/dresses-size-guide/?szgid=1&szgtid=1
+lacoste = https://www.lacoste.com/us/SizeGuide.html
