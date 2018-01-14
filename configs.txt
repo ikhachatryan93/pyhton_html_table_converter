@@ -1,5 +1,10 @@
 [urls]
-hm = http://www2.hm.com/en_gb/customer-service/sizeguide/men.html
-theiconic = https://www.theiconic.com.au/index/sizeguidemain/#men-content
-asos = http://www.asos.com/Women/dresses-size-guide/?szgid=1&szgtid=1
+# hm = http://www2.hm.com/en_gb/customer-service/sizeguide/men.html
+# theiconic = https://www.theiconic.com.au/index/sizeguidemain/#men-content
+# asos = http://www.asos.com/Women/dresses-size-guide/?szgid=1&szgtid=1
 lacoste = https://www.lacoste.com/us/SizeGuide.html
+soffe = http://www.soffe.com/size-chart
+# destinatuinxl = http://www.destinationxl.com/mens-big-and-tall-store/static/sizingchart
+# sketchers = https://www.skechers.com/en-us/size-chart
+# misguidedus = https://www.missguidedus.com/size_guide
+# extrude = http://www.extrude-a-trim.com/aluminum-extrusions/aluminum-angle/rounded-inside-equal-leg-structural/31
