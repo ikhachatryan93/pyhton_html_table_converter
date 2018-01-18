@@ -37,4 +37,8 @@ class Configs:
 def replace_words(string, pairs):
     for word, replace in pairs:
         insensitive_word = re.compile(re.escape(word), re.IGNORECASE)
-        return insensitive_word.sub(replace, string)
+        string = insensitive_word.sub(replace, string)
+
+    return string
+
+

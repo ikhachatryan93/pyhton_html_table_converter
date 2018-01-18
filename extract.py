@@ -10,6 +10,7 @@ import data_precessor
 
 from utilities import Configs
 
+
 def load_page(url):
     req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
     web_page = urlopen(req).read().decode('utf-8')
@@ -46,16 +47,16 @@ def tag_visible(element):
 
 
 def write_tables_to_excel(tables, filename, domain):
-    if not tables or isinstance(tables, bs4.NavigableString):
+    if (not tables) or isinstance(tables, bs4.NavigableString):
         return
     # Create a workbook and add a worksheet.
     workbook = xlsxwriter.Workbook('{}.xlsx'.format(filename.replace('.xslx', '')))
     worksheet = workbook.add_worksheet()
 
-    row_num = 1
+    row_num = 0
 
     for table in tables:
-        if not tag_visible(table):
+        if not tag_visible(table) or isinstance(table, bs4.NavigableString):
             continue
 
         if Configs.get("try_to_find_out_titles"):
@@ -68,35 +69,45 @@ def write_tables_to_excel(tables, filename, domain):
                 if isinstance(elem, bs4.NavigableString):
                     continue
 
-                tag = elem.find('a')
-
-                hyperlink = None
-                if elem.text == '':
-                    text = ' '
-                else:
-                    if tag is not None and tag.has_attr('href'):
+                hyperlink = ''
+                text = ''
+                if elem.text:
+                    tag = elem.find('a')
+                    if tag and tag.has_attr('href'):
                         hyperlink = tag['href']
                     text = elem.text
+
+                # remove extra new lines
+                if text:
+                    text = text.strip()
+
+                if not text:
+                    text = ' '
+
+                assert text
 
                 row_span = 1
                 col_span = 1
 
+                # get html rowspan and colspan values, use them in cells merging
                 if elem.has_attr("rowspan"):
                     row_span = int(elem["rowspan"])
                 if elem.has_attr("colspan"):
                     col_span = int(elem["colspan"])
 
+                # Do some magic to fix merged columns issues
                 col_num = update_columns(worksheet, row_num, col_num)
+                if hyperlink:
+                    text = '''=HYPERLINK(\"{}\", \"{}\")'''.format(urljoin(domain, hyperlink), text)
 
+                # write in merged cells
                 if col_span > 1 or row_span > 1:
                     y = col_num + (col_span - 1)
                     x = row_num + (row_span - 1)
-                    if hyperlink is not None:
-                        text = '''=HYPERLINK(\"{}\", \"{}\")'''.format(urljoin(domain, hyperlink), text)
-
                     worksheet.merge_range(row_num, col_num, x, y, text)
 
                 else:
+                    # write in a single cell
                     worksheet.write(row_num, col_num, text)
 
                 col_num = (col_num + 1) + (col_span - 1)
@@ -123,8 +134,9 @@ def write_in_multiple_files(urls):
         print("Extracting tables from {}".format(filename))
         soup = load_page(url)
         tables = soup.findAll('table')
-        tables = data_precessor.get_interested_tables(tables)
-        write_tables_to_excel(tables, filename, urljoin(url, '/'))
+        filtered_tables = data_precessor.get_interested_tables(tables)
+        write_tables_to_excel(filtered_tables, filename, urljoin(url, '/'))
+
 
 # def process_date(files)
 
