@@ -1,3 +1,12 @@
+[config]
+try_to_find_out_titles = True
+write_in_one_file = False
+
+# This variable is being used in smith-waterman algorithm as minimum good score which identifies matching
+# How much number is bigger so much matching is reliable
+matching_minimum_score = 20
+
+
 [urls]
 #hm = http://www2.hm.com/en_gb/customer-service/sizeguide/men.html
 theiconic = https://www.theiconic.com.au/index/sizeguidemain/#men-content
