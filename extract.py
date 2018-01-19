@@ -1,21 +1,18 @@
 import bs4
 from bs4.element import Comment
-from urllib.request import Request, urlopen
-
 import xlsxwriter
 from urllib.request import urljoin
-import re
-import threading
-import data_precessor
 
 from utilities import Configs
+from utilities import load_page
+from os import path, sep
+import sys
 
+# add local modules into PATH
+#dir_path = path.dirname(path.realpath(__file__))
+#sys.path.insert(0, dir_path + sep + "modules")
 
-def load_page(url):
-    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-    web_page = urlopen(req).read().decode('utf-8')
-
-    return bs4.BeautifulSoup(web_page, 'html5lib')
+import data_precessor
 
 
 def update_columns(worksheet, row, col):
@@ -24,18 +21,6 @@ def update_columns(worksheet, row, col):
             col += merge[3] - merge[1] + 1
             col = update_columns(worksheet, row, col)
     return col
-
-
-def try_find_table_name(tb, worksheet, row_num):
-    if isinstance(tb, bs4.NavigableString):
-        return
-
-    prev = tb.find_previous_siblings()
-    if not prev:
-        prev = tb.parent.find_previous_siblings()
-
-    if not isinstance(prev, bs4.NavigableString) and prev and len(prev[0].text) < 30:
-        worksheet.write(row_num, 0, prev[0].text.strip())
 
 
 def tag_visible(element):
@@ -49,6 +34,7 @@ def tag_visible(element):
 def write_tables_to_excel(tables, filename, domain):
     if (not tables) or isinstance(tables, bs4.NavigableString):
         return
+
     # Create a workbook and add a worksheet.
     workbook = xlsxwriter.Workbook('{}.xlsx'.format(filename.replace('.xslx', '')))
     worksheet = workbook.add_worksheet()
@@ -60,7 +46,8 @@ def write_tables_to_excel(tables, filename, domain):
             continue
 
         if Configs.get("try_to_find_out_titles"):
-            try_find_table_name(table, worksheet, row_num)
+            title = data_precessor.try_find_table_name(table)
+            worksheet.write(row_num, 0, title)
             row_num += 1
 
         for row in table.findAll("tr"):
@@ -83,8 +70,6 @@ def write_tables_to_excel(tables, filename, domain):
 
                 if not text:
                     text = ' '
-
-                assert text
 
                 row_span = 1
                 col_span = 1
@@ -132,10 +117,9 @@ def write_in_single_file(urls):
 def write_in_multiple_files(urls):
     for filename, url in urls.items():
         print("Extracting tables from {}".format(filename))
-        soup = load_page(url)
-        tables = soup.findAll('table')
-        filtered_tables = data_precessor.get_interested_tables(tables)
-        write_tables_to_excel(filtered_tables, filename, urljoin(url, '/'))
+        tables = data_precessor.get_interested_tables(url)
+        write_tables_to_excel(tables, filename, urljoin(url, '/'))
+        # write_tables_to_excel(tables, filename, urljoin(url, '/'))
 
 
 # def process_date(files)

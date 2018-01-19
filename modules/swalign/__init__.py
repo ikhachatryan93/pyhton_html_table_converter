@@ -102,12 +102,13 @@ class LocalAlignment(object):
         self.wildcard = wildcard
         self.full_query = full_query
 
-    def align(self, ref, query, ref_name='', query_name='', rc=False):
+    def align(self, ref, query, ref_name='', query_name='', rc=False, case_sensitive=True):
         orig_ref = ref
         orig_query = query
 
-        #ref = ref.upper()
-        #query = query.upper()
+        if not case_sensitive:
+            ref = ref.upper()
+            query = query.upper()
 
         matrix = Matrix(len(query) + 1, len(ref) + 1, (0, ' ', 0))
         for row in range(1, matrix.rows):
@@ -244,8 +245,8 @@ class LocalAlignment(object):
             print (aln)
             print (max_row, max_col, max_val)
 
-        cigar = _reduce_cigar(aln)
-        return Alignment(orig_query, orig_ref, row, col, cigar, max_val, ref_name, query_name, rc, self.globalalign, self.wildcard)
+        cigar = _reduce_cigar(aln, case_sensitive)
+        return Alignment(orig_query, orig_ref, row, col, cigar, max_val, ref_name, query_name, rc, self.globalalign, self.wildcard, case_sensitive)
 
     def dump_matrix(self, ref, query, matrix, path, show_row=-1, show_col=-1):
         sys.stdout.write('      -      ')
@@ -265,7 +266,7 @@ class LocalAlignment(object):
             sys.stdout.write('\n')
 
 
-def _reduce_cigar(operations):
+def _reduce_cigar(operations, case_sensitive):
     count = 1
     last = None
     ret = []
@@ -273,12 +274,19 @@ def _reduce_cigar(operations):
         if last and op == last:
             count += 1
         elif last:
-            ret.append((count, last.upper()))
+            if case_sensitive:
+                ret.append((count, last))
+            else:
+                ret.append((count, last.upper()))
+
             count = 1
         last = op
 
     if last:
-        ret.append((count, last.upper()))
+        if case_sensitive:
+            ret.append((count, last))
+        else:
+            ret.append((count, last.upper()))
     return ret
 
 
@@ -290,7 +298,7 @@ def _cigar_str(cigar):
 
 
 class Alignment(object):
-    def __init__(self, query, ref, q_pos, r_pos, cigar, score, ref_name='', query_name='', rc=False, globalalign=False, wildcard=None):
+    def __init__(self, query, ref, q_pos, r_pos, cigar, score, ref_name='', query_name='', rc=False, globalalign=False, wildcard=None, case_sensitive=True):
         self.query = query
         self.ref = ref
         self.q_pos = q_pos
@@ -307,10 +315,15 @@ class Alignment(object):
         self.r_region = None
 
         self.orig_query = query
-        self.query = query.upper()
-
         self.orig_ref = ref
-        self.ref = ref.upper()
+
+        if not case_sensitive:
+            self.query = query.upper()
+            self.ref = ref.upper()
+        else:
+            self.query = query
+            self.ref = ref
+
 
         q_len = 0
         r_len = 0
