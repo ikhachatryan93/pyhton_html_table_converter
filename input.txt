@@ -1,0 +1,9 @@
+[input_urls] #dont remove this line
+charlote = https://www.charlotterusse.com/size-chart.html
+underarmor = https://www.underarmour.com/en-us/size-charts
+hm = http://www2.hm.com/en_gb/customer-service/sizeguide/men.html
+theiconic = https://www.theiconic.com.au/index/sizeguidemain/#men-content
+asos = http://www.asos.com/Women/dresses-size-guide/?szgid=1&szgtid=1
+lacoste = https://www.lacoste.com/us/SizeGuide.html
+soffe = http://www.soffe.com/size-chart
+destinationxl = http://www.destinationxl.com/mens-big-and-tall-store/static/sizingchart
