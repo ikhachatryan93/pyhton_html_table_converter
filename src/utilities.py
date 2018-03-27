@@ -55,6 +55,11 @@ def replace_words(string, pairs):
 
     return string
 
+import ssl
+
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 def load_page(url):
     req = urllib.request.Request(
@@ -65,7 +70,7 @@ def load_page(url):
         }
     )
 
-    data = urllib.request.urlopen(req, timeout=4)
+    data = urllib.request.urlopen(req, timeout=4, context=ctx)
 
     return bs4.BeautifulSoup(data.read().decode('utf-8'), 'html5lib')
 
